@@ -1,5 +1,6 @@
 *.json
 *.swp
+*.pyc
 config.py
 __pycache__/
 env/

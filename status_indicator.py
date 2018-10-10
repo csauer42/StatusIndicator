@@ -19,11 +19,12 @@ def handleEvent(event):
         event = "%4s" % event
     try:
         ser = serial.Serial(config['device'])
-    except serial.sertialutil.SerialException:
+    except serial.SerialException:
         print("ERROR: %s not found" % config['device'])
-        return
+        return False
     ser.write(bytearray('%s\n' % event, 'utf-8'))
     ser.close()
+    return True
 
 
 def main():
@@ -45,7 +46,8 @@ def main():
                                           orderBy='startTime').execute()
     events = events_result.get('items', [])
 
-    handleEvent(' ')
+    if not handleEvent(' '):
+        return
 
     for event in events:
         start = datetime.strptime(
