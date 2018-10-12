@@ -3,6 +3,8 @@
 #include <Adafruit_LEDBackpack.h>
 
 #define BRIGHTNESS 7
+#define BAUDRATE 9600
+#define ADDRESS 0x70
 
 Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 char displaybuffer[4] = {' ', ' ', ' ', ' '};
@@ -18,13 +20,13 @@ void writeBuffer() {
 
 void clearBuffer() {
   for (int i = 0; i < 4; i++) {
-    displaybuffer[i] = ' ';  
-  }  
+    displaybuffer[i] = ' ';
+  }
 }
 
 void setup() {
-  Serial.begin(9600);
-  alpha4.begin(0x70);
+  Serial.begin(BAUDRATE);
+  alpha4.begin(ADDRESS);
   alpha4.clear();
   alpha4.setBrightness(BRIGHTNESS);
   alpha4.writeDisplay();

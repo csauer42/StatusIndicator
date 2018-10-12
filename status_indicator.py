@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 
+import sys
 import os
 from datetime import datetime
 import serial
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import file, client, tools
-from config import config
+try:
+    from config import config
+except ModuleNotFoundError:
+    sys.exit("Config file not found. Please create " +
+             "one named config.py from example file.")
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
