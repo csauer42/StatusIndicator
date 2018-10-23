@@ -2,7 +2,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_LEDBackpack.h>
 
-#define BRIGHTNESS 7
+#define BRIGHTNESS 4
 #define BAUDRATE 9600
 #define ADDRESS 0x70
 
@@ -10,10 +10,19 @@ Adafruit_AlphaNum4 alpha4 = Adafruit_AlphaNum4();
 char displaybuffer[4] = {' ', ' ', ' ', ' '};
 
 void writeBuffer() {
-  alpha4.writeDigitAscii(0, displaybuffer[0]);
-  alpha4.writeDigitAscii(1, displaybuffer[1]);
-  alpha4.writeDigitAscii(2, displaybuffer[2]);
-  alpha4.writeDigitAscii(3, displaybuffer[3]);
+  if (displaybuffer[0] == 0 &&
+      displaybuffer[1] == 0 &&
+      displaybuffer[2] == 0) {
+    int value = displaybuffer[3];
+    if (value >= 0 && value <= 15) {
+      alpha4.setBrightness(value);
+    }
+  } else {
+    alpha4.writeDigitAscii(0, displaybuffer[0]);
+    alpha4.writeDigitAscii(1, displaybuffer[1]);
+    alpha4.writeDigitAscii(2, displaybuffer[2]);
+    alpha4.writeDigitAscii(3, displaybuffer[3]);
+  }
 
   alpha4.writeDisplay();
 }

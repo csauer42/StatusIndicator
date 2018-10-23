@@ -17,19 +17,33 @@ except ModuleNotFoundError:
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
 
 
-def handleEvent(event):
-    if len(event) > 4:
-        event = event[:4]
-    elif len(event) < 4:
-        event = "%4s" % event
+def serwrite(msg):
     try:
         ser = serial.Serial(config['device'])
     except serial.SerialException:
         print("ERROR: %s not found" % config['device'])
         return False
-    ser.write(bytearray('%s\n' % event, 'utf-8'))
+    ser.write(msg)
     ser.close()
     return True
+
+
+def setBrightness(val):
+    if val < 0 or val > 15:
+        raise ValueError("Invalid value")
+    message = bytearray(5)
+    message[3] = val
+    message[4] = ord('\n')
+    return serwrite(message)
+
+
+def handleEvent(event):
+    if len(event) > 4:
+        event = event[:4]
+    elif len(event) < 4:
+        event = "%4s" % event
+    message = bytearray('%s\n' % event, 'utf-8')
+    return serwrite(message)
 
 
 def main():
@@ -52,6 +66,11 @@ def main():
     events = events_result.get('items', [])
 
     if not handleEvent(' '):
+        print("Failed to clear display")
+        return
+
+    if not setBrightness(config['brightness']):
+        print("Failed to set brightness")
         return
 
     for event in events:
@@ -64,7 +83,8 @@ def main():
         ).date()
         today = datetime.strptime(now[:10], '%Y-%m-%d').date()
         if start <= today and end >= today:
-            handleEvent(event['summary'])
+            if not handleEvent(event['summary']):
+                print("Failed to handle event")
 
 
 if __name__ == '__main__':

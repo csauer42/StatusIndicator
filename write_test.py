@@ -4,7 +4,7 @@ import sys
 import serial
 
 if len(sys.argv) != 2:
-    print("Usage: ./test.py [string]")
+    print("Usage: ./write_test.py [string]")
     sys.exit(1)
 
 dstr = sys.argv[1]
