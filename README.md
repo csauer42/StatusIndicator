@@ -4,8 +4,7 @@ Uses a 4-digit, 14-segment LED display to indicate out-of-office status, updated
 automatically through a Google calendar.  Calendar interface adapted from
 [Google API quickstart](https://developers.google.com/calendar/quickstart/python).
 Use this to set up credentials.json file.  Calendar should contain events with
-4-character (or less) names.  Currently using all-day events, some adjustments
-may be needed to work properly with shorter events.
+4-character (or less) names.
 
 ##### Hardware
 +   [Adafruit ItsyBitsy 32u4 - 5V 16MHz](https://www.adafruit.com/product/3677)

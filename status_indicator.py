@@ -15,6 +15,8 @@ except ModuleNotFoundError:
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar.readonly'
+morning = 8
+evening = 18
 
 
 def serwrite(msg):
@@ -47,6 +49,20 @@ def handleEvent(event):
 
 
 def main():
+    if not handleEvent(' '):
+        print("Failed to clear display")
+        return
+
+    if not setBrightness(config['brightness']):
+        print("Failed to set brightness")
+        return
+
+    now = datetime.now()
+
+    # only display between 8:00 am and 6:00 pm
+    if morning > now.hour or now.hour >= evening:
+        return
+
     store = file.Storage(os.path.join(os.path.dirname(__file__), 'token.json'))
     creds = store.get()
     if not creds or creds.invalid:
@@ -58,31 +74,30 @@ def main():
     service = build('calendar', 'v3', http=creds.authorize(Http()))
 
     # Call the Calendar API
-    now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+    cal_now = datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
     events_result = service.events().list(calendarId=config['calendar'],
-                                          timeMin=now, maxResults=1,
+                                          timeMin=cal_now, maxResults=1,
                                           singleEvents=True,
                                           orderBy='startTime').execute()
     events = events_result.get('items', [])
 
-    if not handleEvent(' '):
-        print("Failed to clear display")
-        return
-
-    if not setBrightness(config['brightness']):
-        print("Failed to set brightness")
-        return
-
     for event in events:
-        start = datetime.strptime(
-            event['start'].get(
-                'dateTime', event['start'].get('date')), '%Y-%m-%d'
-            ).date()
-        end = datetime.strptime(
-            event['end'].get('dateTime', event['end'].get('date')), '%Y-%m-%d'
-        ).date()
-        today = datetime.strptime(now[:10], '%Y-%m-%d').date()
-        if start <= today and end >= today:
+        if 'dateTime' in event['start']:  # timed event
+            start = datetime.strptime(
+                        event['start']['dateTime'][:-6],  # strip TZ offset
+                        '%Y-%m-%dT%H:%M:%S')
+            end = datetime.strptime(
+                        event['end']['dateTime'][:-6],
+                        '%Y-%m-%dT%H:%M:%S')
+        elif 'date' in event['start']:    # all day event
+            start = datetime.strptime(
+                        event['start']['date'],
+                        '%Y-%m-%d')
+            end = datetime.strptime(
+                        event['end']['date'],
+                        '%Y-%m-%d')
+
+        if start <= now and now <= end:
             if not handleEvent(event['summary']):
                 print("Failed to handle event")
 
