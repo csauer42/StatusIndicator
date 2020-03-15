@@ -39,7 +39,17 @@ def setBrightness(val):
     return serwrite(message)
 
 
+def runScripts(event):
+    fpath = os.path.dirname(os.path.realpath(__file__))
+    scripts_dir = os.path.join(fpath, 'scripts')
+    scripts = os.listdir(scripts_dir)
+    for script in scripts:
+        if script != 'info.txt':
+            os.system("%s %s" % (os.path.join(scripts_dir, script), event))
+
+
 def handleEvent(event):
+    runScripts(event)
     if len(event) > 4:
         event = event[:4]
     elif len(event) < 4:
